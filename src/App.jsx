@@ -81,6 +81,17 @@ function YamapWidget({ activity }) {
     const container = containerRef.current
     if (!container || container.dataset.ready === 'true') return
 
+    const fitIframe = () => {
+      const iframe = container.querySelector('iframe[data-widget="yamap-widget"]')
+      if (!iframe) return
+      iframe.removeAttribute('width')
+      iframe.style.width = '100%'
+      iframe.style.maxWidth = '100%'
+    }
+
+    const observer = new MutationObserver(fitIframe)
+    observer.observe(container, { childList: true })
+
     container.innerHTML = `
       <blockquote
         data-yamap-widget
@@ -94,6 +105,9 @@ function YamapWidget({ activity }) {
       </blockquote>
     `
     container.dataset.ready = 'true'
+    fitIframe()
+
+    return () => observer.disconnect()
   }, [activity])
 
   return <div ref={containerRef} className="yamap-widget" />
